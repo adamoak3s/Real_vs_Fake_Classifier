@@ -1,0 +1,2 @@
+config,family,description,reg,seed,params,best_val_acc,best_epoch,final_val_acc,final_train_acc,sec_per_epoch
+baseline,none,-,{},42,1569089,0.918150007724762,4,0.918150007724762,0.9163625240325928,37.09532332420349
