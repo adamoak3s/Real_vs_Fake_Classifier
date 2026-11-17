@@ -221,5 +221,7 @@ __marimo__/
 
 #User
 data/
+checkpoints/
 .idea/
+Claude outputs/
 .DS_Store
