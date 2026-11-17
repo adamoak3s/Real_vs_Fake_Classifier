@@ -8934,13 +8934,14 @@ and fake images contain the same kinds of objects. Fine-tuning the top block rai
 architecture trained from scratch by 1.7 points, in 14 minutes instead of 50.</p>
 <p><strong>Timing:</strong> fine-tuned ResNet50 is the best accuracy-for-time trade-off. VGG16 took about twice as long to
 train and is about twice as slow at inference, for slightly lower accuracy.</p>
-<p><strong>Caveats:</strong> one seed per model; differences of about one point among the from-scratch models are only about
-twice the run-to-run noise measured in Task 4.</p>
+<p><strong>Caveats:</strong> one seed per model. Identical runs of this pipeline differed by 0.5 to 0.8 points in Tasks 3
+and 4, so the differences of about one point among the from-scratch models are not conclusive. The
+pre-trained gains (+2.4 and +2.9) are well beyond that noise.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=69eb74b4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5b0ee154">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

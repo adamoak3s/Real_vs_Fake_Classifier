@@ -9251,7 +9251,9 @@ Epoch 10/20
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h1 id="Discussion">Discussion<a class="anchor-link" href="#Discussion">¶</a></h1><p>The baseline (Task 3's best pipeline: the Task 2 CNN with horizontal flip) reached <strong>0.9428</strong>; its
-second-seed run reached 0.9473, so differences under about 0.5 points are within run-to-run noise.</p>
+second-seed run reached 0.9473, so differences under about 0.5 points are within run-to-run noise. (The
+same pipeline scored 0.9507 in Task 3 on the same machine: GPU training is not exactly repeatable, so
+identical runs can differ by up to about 0.8 points.)</p>
 <p><strong>Dropout before the classifier</strong> was the only clear improvement: <strong>0.9505 (+0.8)</strong> at rate 0.5 and
 0.9495 (+0.7) at 0.25. It did not raise the peak much. It delayed overfitting: the baseline peaked
 around epoch 10 and then declined, while with dropout 0.5 validation accuracy stayed near 0.95 through
@@ -9261,7 +9263,9 @@ accuracy was unstable. <strong>L2</strong> hurt at 1e-4 and 1e-3; at 1e-3 the mo
 accuracy both stalled near 0.90). <strong>Dropout after every conv block</strong> was effectively neutral at 0.1 and hurt at
 0.25. Combining techniques did not help: BatchNorm + L2 was unstable (−2.4), and the automatic best-of
 combination scored −0.3.</p>
-<p><strong>Caveats:</strong> one seed per configuration, and early stopping (patience 3) cut some runs short, notably L2 1e-4.</p>
+<p><strong>Caveats:</strong> one seed per configuration, and early stopping (patience 3) cut some runs short, notably L2 1e-4.
+Dropout's +0.8 is at the edge of the run-to-run noise, so the evidence that it helps rests mainly on the
+training curves (it delayed overfitting), not on the size of the gain.</p>
 </div>
 </div>
 </div>
@@ -9302,7 +9306,7 @@ Hurt by more than the noise floor: ['dropout_conv_0.25', 'l2_1e-4', 'l2_1e-3', '
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bf9ec7d1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=78e19883">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
