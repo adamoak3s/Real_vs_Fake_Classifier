@@ -14,13 +14,15 @@ It creates, inside the project folder:
     data/task_6_sample/teachable_machine_train/   500 REAL + 500 FAKE training images, enlarged the same way
     results/task_6/answer_key.csv                 id, true label, source file
 
-The selection is fixed by the seeds below, so the same dataset always gives the same sample.
-results/task_6/answer_key.csv is kept in the repository: if it already exists, the script checks
-that the sample it just drew matches it, and stops if it doesn't (a mismatch means the dataset's
-file names differ from the original run, so the saved predictions would no longer line up).
+Then collect each tool's answers into results/task_6/predictions/<tool>.csv (see
+task_6_offtheshelf.ipynb, and score_teachable_machine.py for Teachable Machine) and run the notebook.
 
-Requires only Pillow. Options: --out and --results change the output folders, --force overwrites
-a mismatching answer key.
+The selection is fixed by the seeds below, so the same dataset always gives the same sample; pass
+--seed to draw a different one. If the new sample differs from an existing answer key, prediction
+files already in results/task_6/predictions/ belong to the old sample, so they are moved into a
+"previous_sample" subfolder instead of being scored against the wrong images.
+
+Requires only Pillow. Options: --out and --results change the output folders.
 """
 import argparse
 import csv
@@ -76,7 +78,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out", type=Path, help="sample folder (default: data/task_6_sample)")
     ap.add_argument("--results", type=Path, help="folder for answer_key.csv (default: results/task_6)")
-    ap.add_argument("--force", action="store_true", help="overwrite an answer key that doesn't match")
+    ap.add_argument("--seed", type=int, default=SAMPLE_SEED, help=f"seed for drawing the test sample (default {SAMPLE_SEED})")
     args = ap.parse_args()
 
     root = find_project_root()
@@ -84,7 +86,7 @@ def main():
     results = args.results or root / "results" / "task_6"
 
     # 1. Draw the test sample. File lists are sorted so the draw doesn't depend on the file system.
-    rng = random.Random(SAMPLE_SEED)
+    rng = random.Random(args.seed)
     items = []
     for label in CLASSES:
         files = sorted(os.listdir(root / "data" / "test" / label))
@@ -93,17 +95,28 @@ def main():
     rng.shuffle(items)
     rows = [(i, label, src) for i, (label, src) in enumerate(items, 1)]
 
-    # 2. Check against the answer key in the repository, then write it.
+    # 2. Write the answer key. If it changed, set aside predictions made for the old sample.
     key_path = results / "answer_key.csv"
+    pred_dir = results / "predictions"
+    pred_dir.mkdir(parents=True, exist_ok=True)
     if key_path.exists():
         with open(key_path, newline="") as fh:
             old = [(int(r["id"]), r["label"], r["source"]) for r in csv.DictReader(fh)]
-        if old != rows and not args.force:
-            sys.exit(f"STOPPED: the sample drawn from this dataset does not match {key_path}.\n"
-                     "The dataset's file names probably differ from the original run. Nothing was written.\n"
-                     "Use --force to replace the answer key (the saved predictions will then no longer apply).")
-        print("answer key matches the existing one" if old == rows else "answer key replaced (--force)")
-    (results / "predictions").mkdir(parents=True, exist_ok=True)
+        if old == rows:
+            print("same sample as the existing answer key")
+        else:
+            stale = sorted(pred_dir.glob("*.csv"))
+            if stale:
+                n = 1
+                while (pred_dir / f"previous_sample_{n}").exists():
+                    n += 1
+                aside = pred_dir / f"previous_sample_{n}"
+                aside.mkdir()
+                for f in stale:
+                    f.rename(aside / f.name)
+                print(f"NEW SAMPLE: moved {len(stale)} prediction file(s) for the old sample to {aside}")
+            else:
+                print("NEW SAMPLE: the answer key was replaced")
     with open(key_path, "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["id", "label", "source"])
